@@ -1,6 +1,6 @@
 from peewee import *
 from datetime import datetime
-
+import hashlib
 
 database = MySQLDatabase('fastapi_cf',
                     user='root',
@@ -15,6 +15,11 @@ class User(Model):
 
     def __str__(self):
         return self.username
+    @classmethod
+    def create_password(cls,password):
+        h = hashlib.md5()
+        h.update(password.encode('utf-8'))
+        return h.hexdigest()
 
     class Meta:
         database = database
