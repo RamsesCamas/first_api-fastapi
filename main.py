@@ -45,7 +45,7 @@ async def home():
 
 @app.get('/about')
 async def about():
-    return 'About Us'
+    return 'Esta es la sección sobre nosotros, la API de películas'
 
 @app.post('/user',response_model=UserResponseModel)
 async def create_user(user: UserRequestModel):
