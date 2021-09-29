@@ -91,18 +91,14 @@ async def create_review(user_review: ReviewRequestModel):
 @app.get('/reviews', response_model=List[ReviewResponseModel])
 async def get_reviews(page:int =1,limit:int =10):
     reviews = UserReview.select().paginate(page,limit)
-    my_reviews = [{'id': user_re.id,'movie':Movie.select().where(Movie.id == user_re.movie_id).first(),
-    'review':user_re.reviews,'score':user_re.score}  for user_re in reviews]
-    return  my_reviews
+    return  [user_re  for user_re in reviews]
 
 @app.get('/reviews/{review_id}', response_model=ReviewResponseModel)
 async def get_review(review_id:int):
     user_review = UserReview.select().where(UserReview.id == review_id).first()
     if user_review is None:
         raise HTTPException(status_code=404,detail='Review Not Found')
-    movie = Movie.select().where(Movie.id == user_review.movie_id).first()
-    return {'id': user_review.id,'movie':movie,
-    'review':user_review.reviews,'score':user_review.score}
+    return user_review
 
 
 @app.put('/reviews/{review_id}',response_model=ReviewResponseModel)
@@ -122,6 +118,4 @@ async def delete_review(review_id:int):
     if user_review is None:
         raise HTTPException(status_code=404,detail='Review Not Found')
     user_review.delete_instance()
-    movie = Movie.select().where(Movie.id == user_review.movie_id).first()
-    return {'id': user_review.id,'movie':movie,
-    'review':user_review.reviews,'score':user_review.score}
+    return user_review

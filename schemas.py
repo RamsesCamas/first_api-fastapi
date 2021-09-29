@@ -27,14 +27,9 @@ class UserRequestModel(BaseModel):
     username: str
     password: str
 
-    
-
-
 class UserResponseModel(ResponseModel):
     id: int
     username: str
-
-
 
 class MovieRequestModel(BaseModel):
     title: str
