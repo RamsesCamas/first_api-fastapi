@@ -58,6 +58,12 @@ async def create_user(user: UserRequestModel):
         password = hash_password
     )
     return user
+@app.get('/user',response_model=UserResponseModel)
+async def get_user(user_id:int):
+    user = User.select().where(User.id == user_id).first()
+    if user is None:
+        raise HTTPException(status_code=404, detail='User Not Found')
+    return user
 
 @app.post('/movies', response_model=MovieResponseModel)
 async def create_movie(movie: MovieRequestModel):
@@ -83,9 +89,10 @@ async def create_review(user_review: ReviewRequestModel):
     return user_review
 
 @app.get('/reviews', response_model=List[ReviewResponseModel])
-async def get_reviews():
-    reviews = UserReview.select()
-    my_reviews = [{'id': user_re.id,'movie_id':user_re.movie_id,'review':user_re.reviews,'score':user_re.score}  for user_re in reviews]
+async def get_reviews(page:int =1,limit:int =10):
+    reviews = UserReview.select().paginate(page,limit)
+    my_reviews = [{'id': user_re.id,'movie':Movie.select().where(Movie.id == user_re.movie_id).first(),
+    'review':user_re.reviews,'score':user_re.score}  for user_re in reviews]
     return  my_reviews
 
 @app.get('/reviews/{review_id}', response_model=ReviewResponseModel)
@@ -93,7 +100,9 @@ async def get_review(review_id:int):
     user_review = UserReview.select().where(UserReview.id == review_id).first()
     if user_review is None:
         raise HTTPException(status_code=404,detail='Review Not Found')
-    return {'id': user_review.id,'movie_id':user_review.movie_id,'review':user_review.reviews,'score':user_review.score}
+    movie = Movie.select().where(Movie.id == user_review.movie_id).first()
+    return {'id': user_review.id,'movie':movie,
+    'review':user_review.reviews,'score':user_review.score}
 
 
 @app.put('/reviews/{review_id}',response_model=ReviewResponseModel)
@@ -113,5 +122,6 @@ async def delete_review(review_id:int):
     if user_review is None:
         raise HTTPException(status_code=404,detail='Review Not Found')
     user_review.delete_instance()
-
-    return {'id': user_review.id,'movie_id':user_review.movie_id,'review':user_review.reviews,'score':user_review.score}
+    movie = Movie.select().where(Movie.id == user_review.movie_id).first()
+    return {'id': user_review.id,'movie':movie,
+    'review':user_review.reviews,'score':user_review.score}
