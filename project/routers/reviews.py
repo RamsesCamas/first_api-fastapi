@@ -14,7 +14,7 @@ from fastapi import APIRouter
 router = APIRouter(prefix='/reviews')
 
 
-@router.post('/reviews',response_model=ReviewResponseModel)
+@router.post('',response_model=ReviewResponseModel)
 async def create_review(user_review: ReviewRequestModel):
 
     if User.select().where(User.id == user_review.user_id).first() is None:
@@ -30,12 +30,12 @@ async def create_review(user_review: ReviewRequestModel):
     )
     return user_review
 
-@router.get('/reviews', response_model=List[ReviewResponseModel])
+@router.get('', response_model=List[ReviewResponseModel])
 async def get_reviews(page:int =1,limit:int =10):
     reviews = UserReview.select().paginate(page,limit)
     return  [user_re  for user_re in reviews]
 
-@router.get('/reviews/{review_id}', response_model=ReviewResponseModel)
+@router.get('/{review_id}', response_model=ReviewResponseModel)
 async def get_review(review_id:int):
     user_review = UserReview.select().where(UserReview.id == review_id).first()
     if user_review is None:
@@ -43,7 +43,7 @@ async def get_review(review_id:int):
     return user_review
 
 
-@router.put('/reviews/{review_id}',response_model=ReviewResponseModel)
+@router.put('/{review_id}',response_model=ReviewResponseModel)
 async def update_review(review_id:int,review_request: ReviewRequestPutModel):
     user_review = UserReview.select().where(UserReview.id == review_id).first()
     if user_review is None:
@@ -54,7 +54,7 @@ async def update_review(review_id:int,review_request: ReviewRequestPutModel):
     user_review.save()
     return user_review
 
-@router.delete('/reviews/{review_id}',response_model=ReviewResponseModel)
+@router.delete('/{review_id}',response_model=ReviewResponseModel)
 async def delete_review(review_id:int):
     user_review = UserReview.select().where(UserReview.id == review_id).first()
     if user_review is None:
